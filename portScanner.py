@@ -8,15 +8,15 @@ openPorts = []
 closedPorts = []
 filteredPorts = []
 
-flag = 0
+progressIncrement = 0
 portTotal = 1023
 # Sends a null packet with no flags to a port. An open port will send no response, a closed port would send a 
 # response packet with a RST(reset) flag, and an ICMP filtered port will send an ICMP error response.
 for port in range(1,portTotal):
     progress = round((port/portTotal)*100)
     if(port % 20 == 0):
-        flag += 1
-    sys.stdout.write(f'\r{str(progress)}% [{"="*(flag)}{"_"*(round(portTotal/20)-flag)}]')
+        progressIncrement += 1
+    sys.stdout.write(f'\r{str(progress)}% [{"="*(progressIncrement)}{"_"*(round(portTotal/20)-progressIncrement)}]')
     sys.stdout.flush()
     packet = sr1(IP(dst=target)/TCP(dport=port,flags=""),timeout=10,verbose=False)
     if packet is None:
