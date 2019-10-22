@@ -14,7 +14,7 @@ def getPing(ip):
     if response.rtt_max == 2:
         return False
     else:
-        return(1.5*(response.rtt_max))
+        return(2*(response.rtt_max))
 
 
 # 10.104.255.254 default gateway
@@ -35,9 +35,10 @@ def scanPorts(ip, ports, pingTime):
         if packet is None:
             closedPorts.append(port)
         elif(packet.haslayer(TCP)):
-            if(packet.getlayer(TCP).flags == 0x12):
+            if(packet.getlayer(TCP).flags == 0x12): # SYN + ACK
                 openPorts.append(port)
-            elif(packet.getlayer(TCP).flags == 0x14):
+            elif(packet.getlayer(TCP).flags == 0x14): # ACK + RST
+                closedPorts.append(port)
                 if int(packet.haslayer(ICMP)):
                     if int(packet.getlayer(ICMP).type) == 3 and int(packet.getlayer(ICMP).code) in [1,2,3,9,10,13]:
                         filteredPorts.append(port)
@@ -46,15 +47,13 @@ def scanPorts(ip, ports, pingTime):
                 else:
                     closedPorts.append(port)
 
-                # int(packet.getlayer(ICMP).type) == 3 and 
-
 def run():
     """ Calls all of the other functions. Starts by getting input and getting ping time to check if it is valid, then
         commences the scan """
     print("Enter Target IP:")
     target = input()
     ping = getPing(target)
-
+    
     if(ping == False):
         print(f'Could not find host {target}')
     else:
