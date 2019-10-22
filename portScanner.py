@@ -37,6 +37,8 @@ def scanPorts(ip, ports, pingTime):
         elif(packet.haslayer(TCP)):
             if(packet.getlayer(TCP).flags == 0x12): # SYN + ACK
                 openPorts.append(port)
+                rstPacket = (IP(dst=ip)/TCP(dport=port,flags="R"))
+                send(rstPacket, verbose=False)
             elif(packet.getlayer(TCP).flags == 0x14): # ACK + RST
                 closedPorts.append(port)
                 if int(packet.haslayer(ICMP)):
